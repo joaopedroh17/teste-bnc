@@ -12,8 +12,10 @@ jobs:
     runs-on: ubuntu-latest
  
     strategy:
-matrix:
-        node-version: [16.x]    
+       matrix:
+        node-version: [14.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -38,4 +40,3 @@ matrix:
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         TARGET: ${{ secrets.REMOTE_TARGET }}
- 
