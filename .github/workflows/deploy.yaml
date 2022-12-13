@@ -1,61 +1,43 @@
-name: Deploy to Production
-
-on: 
+name: Node.js CI
+ 
+on:
   push:
-    branches:
-      - main
-
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+ 
 jobs:
   build:
+ 
     runs-on: ubuntu-latest
-    name: Build artifact
+ 
+    strategy:
+matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    
     steps:
-      - uses: actions/checkout@v2
-        name: Checkout
-
-      - name: Installing dependencies
-        run: npm ci
-
-      - name: Build project
-        run: npm run build
-
-      - name: Creating deployment artifact
-        env:
-          GITHUB_SHA: ${{ github.sha }}
-        run: tar -czf "${GITHUB_SHA}".tar.gz build
-
-      - name: Storing artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-build
-          path: ${{ github.sha }}.tar.gz
-  prepare-release:
-    runs-on: ubuntu-latest
-    needs: build
-    name: Upload to server
-    steps: 
-      - uses: actions/download-artifact@v2
-        name: Downloading artifact
-        with:
-          name: app-build
-
-      - name: Uploading to server
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.DO_HOST }}
-          username: ${{ secrets.DO_USER }}
-          key: ${{ secrets.DO_KEY }}
-          port: 22
-          source: ${{ github.sha }}.tar.gz
-          target: ${{ secrets.DO_TARGET }}
-
-      - name: Strating Files
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DO_HOST }}
-          username: ${{ secrets.DO_USER }}
-          key: ${{ secrets.DO_KEY }}
-          port: 22
-          source: ${{ github.sha }}.tar.gz
-          target: ${{ secrets.DO_TARGET }}
-         
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm i -g vue-cli
+    - run: npm install
+    - run: echo ${{ secrets.ENV_FILE }} > .env
+    - run: cat .env
+    - run: npm run build
+      env:
+        VUE_APP_API_URL: "${{ secrets.VUE_APP_API_URL }}"
+        VUE_APP_I18N_LOCALE: "${{ secrets.VUE_APP_I18N_LOCALE }}"
+        VUE_APP_I18N_FALLBACK_LOCALE: "${{ secrets.VUE_APP_I18N_FALLBACK_LOCALE }}"
+    - name: Deploy to Staging server
+      uses: easingthemes/ssh-deploy@v2.1.5
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY  }}
+        ARGS: "-rltgoDzvO"
+        SOURCE: "dist/"
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        TARGET: ${{ secrets.REMOTE_TARGET }}
+ 
