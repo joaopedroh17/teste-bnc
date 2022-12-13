@@ -47,7 +47,7 @@ jobs:
           key: ${{ secrets.DO_KEY }}
           port: 22
           source: ${{ github.sha }}.tar.gz
-          target: /tmp/
+          target: ${{ secrets.DO_TARGET }}
 
       - name: Strating Files
         uses: appleboy/ssh-action@master
