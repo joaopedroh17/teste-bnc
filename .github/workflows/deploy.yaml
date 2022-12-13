@@ -16,8 +16,7 @@ jobs:
       - name: Installing dependencies
         run: npm ci
 
-      - name: Build project
-      run: npm run build
+      - name: Build projectrun: npm run build
 
       - name: Creating deployment artifact
         env:
