@@ -58,7 +58,4 @@ jobs:
           port: 22
           source: ${{ github.sha }}.tar.gz
           target: ${{ secrets.DO_TARGET }}
-          script: | 
-            mkdir -p /home/project/releases/${{ github.sha }}
-            tar -xzf /opt/bitnami/apache/htdocs${{ github.sha }}.tar.gz -C /home/project/releases/${{ github.sha }}
-
+         
