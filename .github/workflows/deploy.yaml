@@ -13,7 +13,7 @@ jobs:
  
     strategy:
        matrix:
-        node-version: [14.x]
+        node-version: [14.x, 16x, 18x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     
     steps:
@@ -36,7 +36,7 @@ jobs:
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY  }}
         ARGS: "-rltgoDzvO"
-        SOURCE: "static/"
+        SOURCE: "build/"
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         TARGET: ${{ secrets.REMOTE_TARGET }}
